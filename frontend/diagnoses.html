@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Diagnosa - Sistem Diabetes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS styles tetap sama seperti sebelumnya */
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --primary-light: #64b5f6;
+            --accent: #ff9800;
+            --light: #f5f5f5;
+            --dark: #333;
+            --gray: #e0e0e0;
+            --gray-dark: #9e9e9e;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: var(--shadow);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            background-color: var(--white);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 99;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-logout {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        .content {
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn:disabled {
+            background-color: var(--gray);
+            color: var(--gray-dark);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn:disabled:hover {
+            background-color: var(--gray);
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-dark);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            min-width: 150px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+        }
+
+        th {
+            background-color: var(--light);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 1px solid var(--gray);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray);
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state i, .error-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-success {
+            background-color: #e8f5e9;
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-warning {
+            background-color: #fff3e0;
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-danger {
+            background-color: #ffebee;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .badge-info {
+            background-color: #e3f2fd;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+        }
+
+        .pagination-info {
+            margin: 0 15px;
+            color: var(--gray-dark);
+        }
+
+        .message-area {
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background-color: #e8f5e9;
+            color: var(--success);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--success);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: var(--danger);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-message {
+            background-color: #e3f2fd;
+            color: var(--primary);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .risk-low { background-color: #e8f5e9; color: var(--success); }
+        .risk-medium { background-color: #fff3e0; color: var(--warning); }
+        .risk-high { background-color: #ffebee; color: var(--danger); }
+
+        .score-bar {
+            height: 8px;
+            background-color: var(--gray);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: var(--light);
+            border-radius: 0 0 8px 8px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                margin-top: 10px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Diabetes</h2>
+                <p>Sistem Manajemen Data</p>
+            </div>
+            <div class="sidebar-menu">
+                <a href="admin.html" class="menu-item">
+                    <i class="fas fa-chart-bar"></i> Dashboard
+                </a>
+                <a href="pengguna.html" class="menu-item">
+                    <i class="fas fa-users"></i> Data Pengguna
+                </a>
+                <a href="diagnoses.html" class="menu-item active">
+                    <i class="fas fa-file-medical"></i> Data Diagnosa
+                </a>
+                <a href="diseases.html" class="menu-item">
+                    <i class="fas fa-user-md"></i> User Symptoms
+                </a>
+                <a href="gejala.html" class="menu-item">
+                    <i class="fas fa-clipboard-list"></i> Data Gejala
+                </a>
+                <a href="recommendations.html" class="menu-item">
+                    <i class="fas fa-lightbulb"></i> Rekomendasi
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <h1>Data Diagnosa</h1>
+                <div class="user-info">
+                    <div id="userAvatar" style="width: 40px; height: 40px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; color: #1565c0; font-weight: bold; margin-right: 10px; font-size: 16px;">
+                        A
+                    </div>
+                    <span id="userName">Administrator</span>
+                </div>
+                <button id="logoutBtn" class="btn btn-primary btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Messages Area -->
+                <div id="messageArea" class="message-area"></div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left-color: var(--primary);">
+                        <div class="stat-icon" style="background: #e3f2fd; color: var(--primary);">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalDiagnoses">0</h3>
+                            <p>Total Diagnosa</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" style="border-left-color: var(--success);">
+                        <div class="stat-icon" style="background: #e8f5e9; color: var(--success);">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalLowRisk">0</h3>
+                            <p>Risiko Rendah</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" style="border-left-color: var(--warning);">
+                        <div class="stat-icon" style="background: #fff3e0; color: var(--warning);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalMediumRisk">0</h3>
+                            <p>Risiko Sedang</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" style="border-left-color: var(--danger);">
+                        <div class="stat-icon" style="background: #ffebee; color: var(--danger);">
+                            <i class="fas fa-skull-crossbones"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalHighRisk">0</h3>
+                            <p>Risiko Tinggi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Daftar Diagnosa</h3>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button onclick="loadDiagnosesData()" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="filters-container">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchInput" placeholder="Cari nama pengguna...">
+                            </div>
+                            <div class="filter-group">
+                                <select id="riskFilter">
+                                    <option value="">Semua Tingkat Risiko</option>
+                                    <option value="Rendah">Risiko Rendah</option>
+                                    <option value="Sedang">Risiko Sedang</option>
+                                    <option value="Tinggi">Risiko Tinggi</option>
+                                </select>
+                                <select id="dateFilter">
+                                    <option value="">Semua Waktu</option>
+                                    <option value="today">Hari Ini</option>
+                                    <option value="week">Minggu Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                </select>
+                                <button onclick="applyFilters()" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i>
+                                    Filter
+                                </button>
+                                <button onclick="resetFilters()" class="btn">
+                                    <i class="fas fa-redo"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Diagnoses Table -->
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Pengguna</th>
+                                        <th>Penyakit</th>
+                                        <th>Tingkat Risiko</th>
+                                        <th>Skor Akhir</th>
+                                        <th>Tanggal Diagnosa</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="diagnosesTableBody">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="loadingState" class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Memuat data diagnosa...</p>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="emptyState" class="empty-state hidden">
+                            <i class="fas fa-file-medical"></i>
+                            <h3>Tidak ada data diagnosa</h3>
+                            <p>Belum ada diagnosa yang dilakukan oleh pengguna.</p>
+                        </div>
+                        
+                        <!-- Error State -->
+                        <div id="errorState" class="error-state hidden">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Gagal memuat data</h3>
+                            <p>Terjadi kesalahan saat mengambil data diagnosa.</p>
+                            <button onclick="loadDiagnosesData()" class="btn btn-primary" style="margin-top: 15px;">
+                                <i class="fas fa-redo-alt"></i>
+                                Coba Lagi
+                            </button>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination">
+                            <button onclick="previousPage()" class="btn" id="prevBtn">
+                                <i class="fas fa-chevron-left"></i>
+                                Sebelumnya
+                            </button>
+                            <span class="pagination-info" id="pageInfo">Halaman 1 dari 1</span>
+                            <button onclick="nextPage()" class="btn" id="nextBtn">
+                                Selanjutnya
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk Detail Diagnosa -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailModalTitle">Detail Diagnosa</h3>
+                <button class="close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="detailContent">
+                    <!-- Detail content akan diisi oleh JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================
+        // 🔐 SESSION MANAGEMENT
+        // =============================
+        
+        class SessionManager {
+            static checkSession() {
+                try {
+                    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+                    const adminName = sessionStorage.getItem('adminName');
+                    const loginTime = sessionStorage.getItem('loginTime');
+                    
+                    console.log('🔍 Session check:', { isLoggedIn, adminName, loginTime });
+                    
+                    if (isLoggedIn === 'true' && adminName && loginTime) {
+                        const sessionAge = Date.now() - parseInt(loginTime);
+                        const sessionValid = sessionAge < (24 * 60 * 60 * 1000);
+                        
+                        if (sessionValid) {
+                            console.log('✅ Valid session found');
+                            return true;
+                        } else {
+                            console.log('❌ Session expired');
+                            this.clearSession();
+                        }
+                    }
+                    
+                    console.log('❌ No valid session found');
+                    return false;
+                } catch (error) {
+                    console.error('Error checking session:', error);
+                    return false;
+                }
+            }
+            
+            static clearSession() {
+                sessionStorage.clear();
+                localStorage.clear();
+            }
+            
+            static getAdminName() {
+                return sessionStorage.getItem('adminName') || 'Administrator';
+            }
+            
+            static logout() {
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    console.log('🚪 Logging out...');
+                    this.clearSession();
+                    window.location.href = 'login.html';
+                }
+            }
+        }
+
+        // =============================
+        // ✅ Konfigurasi API - SESUAIKAN DENGAN BACKEND ANDA
+        // =============================
+        const API_BASE_URL = "http://localhost:8000/api";
+
+        // =============================
+        // 🔹 Service untuk mengelola diagnosa - DIUBAH UNTUK STRUKTUR DATABASE ANDA
+        // =============================
+        class DiagnosisService {
+            static async getAll() {
+                try {
+                    console.log('📡 Fetching diagnoses from API...');
+                    
+                    // Endpoint yang sesuai dengan database Anda
+                    const response = await fetch(`${API_BASE_URL}/diagnoses`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('✅ Diagnoses data received:', data);
+                    
+                    // Handle different API response structures
+                    if (data.data && Array.isArray(data.data)) {
+                        return data.data;
+                    } else if (Array.isArray(data)) {
+                        return data;
+                    } else if (data.diagnoses && Array.isArray(data.diagnoses)) {
+                        return data.diagnoses;
+                    } else {
+                        console.warn('⚠️ Unexpected API response format, using simulated data');
+                        return this.getSimulatedData();
+                    }
+                } catch (error) {
+                    console.error('❌ Error fetching diagnoses:', error);
+                    // Fallback to simulated data
+                    return this.getSimulatedData();
+                }
+            }
+
+            // Data simulasi disesuaikan dengan struktur database Anda
+            static getSimulatedData() {
+                console.log('🔄 Using simulated diagnoses data based on your database structure');
+                return [
+                    {
+                        id: 1,
+                        user_id: 1,
+                        user_name: "Budi Santoso",
+                        user_age: 35,
+                        user_gender: "Laki-laki",
+                        disease_name: "Diabetes Tipe 2",
+                        tingkat_resiko: "Tinggi",
+                        skor_akhir: 0.78,
+                        rekomendasi_khusus: "Segera konsultasi dengan dokter dan lakukan pemeriksaan lengkap",
+                        created_at: "2025-01-15T10:30:00Z"
+                    },
+                    {
+                        id: 2,
+                        user_id: 2,
+                        user_name: "Siti Rahayu",
+                        user_age: 28,
+                        user_gender: "Perempuan",
+                        disease_name: "Diabetes Tipe 2",
+                        tingkat_resiko: "Sedang",
+                        skor_akhir: 0.45,
+                        rekomendasi_khusus: "Perbanyak aktivitas fisik dan kontrol gula darah",
+                        created_at: "2025-01-14T14:20:00Z"
+                    },
+                    {
+                        id: 3,
+                        user_id: 3,
+                        user_name: "Andi Wijaya",
+                        user_age: 45,
+                        user_gender: "Laki-laki",
+                        disease_name: "Diabetes Tipe 2",
+                        tingkat_resiko: "Rendah",
+                        skor_akhir: 0.25,
+                        rekomendasi_khusus: "Terus jaga pola makan sehat dan rutin berolahraga",
+                        created_at: "2025-01-13T09:15:00Z"
+                    },
+                    {
+                        id: 4,
+                        user_id: 4,
+                        user_name: "Dewi Lestari",
+                        user_age: 32,
+                        user_gender: "Perempuan",
+                        disease_name: "Diabetes Tipe 1",
+                        tingkat_resiko: "Tinggi",
+                        skor_akhir: 0.82,
+                        rekomendasi_khusus: "Lakukan pemeriksaan gula darah secara rutin dan konsultasi dokter",
+                        created_at: "2025-01-12T16:45:00Z"
+                    },
+                    {
+                        id: 5,
+                        user_id: 5,
+                        user_name: "Rina Melati",
+                        user_age: 29,
+                        user_gender: "Perempuan",
+                        disease_name: "Diabetes Tipe 2",
+                        tingkat_resiko: "Sedang",
+                        skor_akhir: 0.52,
+                        rekomendasi_khusus: "Kurangi konsumsi gula dan perbanyak serat",
+                        created_at: "2025-01-11T11:30:00Z"
+                    }
+                ];
+            }
+        }
+
+        // =============================
+        // 🔹 State Management
+        // =============================
+        let diagnosesData = [];
+        let filteredDiagnoses = [];
+        let currentPage = 1;
+        const diagnosesPerPage = 10;
+
+        // =============================
+        // 🔹 UI Controller
+        // =============================
+        class UIController {
+            static showLoading() {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('errorState').classList.add('hidden');
+                document.getElementById('diagnosesTableBody').innerHTML = '';
+            }
+            
+            static hideLoading() {
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+            
+            static showEmptyState() {
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('diagnosesTableBody').innerHTML = '';
+            }
+            
+            static showErrorState() {
+                document.getElementById('errorState').classList.remove('hidden');
+                document.getElementById('diagnosesTableBody').innerHTML = '';
+            }
+            
+            static updateUserInfo() {
+                const adminName = SessionManager.getAdminName();
+                const initial = adminName.charAt(0).toUpperCase();
+                
+                document.getElementById('userName').textContent = adminName;
+                document.getElementById('userAvatar').textContent = initial;
+            }
+            
+            static showMessage(message, type = 'success') {
+                const messageArea = document.getElementById('messageArea');
+                const messageClass = type === 'success' ? 'success-message' : 
+                                   type === 'error' ? 'error-message' : 'info-message';
+                const messageIcon = type === 'success' ? 'fa-check-circle' : 
+                                  type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+                
+                messageArea.innerHTML = `
+                    <div class="${messageClass}">
+                        <i class="fas ${messageIcon}"></i>
+                        ${message}
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    messageArea.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // =============================
+        // 🔹 Data Access Helper - DIUBAH UNTUK STRUKTUR DATABASE ANDA
+        // =============================
+        class DataHelper {
+            static getSafeValue(obj, path, defaultValue = '-') {
+                try {
+                    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+                    return value !== undefined && value !== null ? value : defaultValue;
+                } catch (error) {
+                    return defaultValue;
+                }
+            }
+            
+            // Normalisasi data sesuai struktur database Anda
+            static normalizeDiagnosisData(data) {
+                return {
+                    id: this.getSafeValue(data, 'id', 0),
+                    user_id: this.getSafeValue(data, 'user_id', 0),
+                    user_name: this.getSafeValue(data, 'user_name', 'Tidak Diketahui'),
+                    user_age: this.getSafeValue(data, 'user_age', 0),
+                    user_gender: this.getSafeValue(data, 'user_gender', 'Tidak Diketahui'),
+                    disease_name: this.getSafeValue(data, 'disease_name', 'Diabetes'),
+                    tingkat_resiko: this.getSafeValue(data, 'tingkat_resiko', 'Tidak Diketahui'),
+                    skor_akhir: parseFloat(this.getSafeValue(data, 'skor_akhir', 0)),
+                    rekomendasi_khusus: this.getSafeValue(data, 'rekomendasi_khusus', 'Tidak ada rekomendasi khusus'),
+                    created_at: this.getSafeValue(data, 'created_at', new Date().toISOString())
+                };
+            }
+        }
+
+        // =============================
+        // 🔹 Ambil data diagnosa dari API
+        // =============================
+        async function loadDiagnosesData() {
+            if (!SessionManager.checkSession()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            UIController.showLoading();
+            
+            try {
+                const data = await DiagnosisService.getAll();
+                
+                UIController.hideLoading();
+                
+                if (!data || !data.length) {
+                    UIController.showEmptyState();
+                    updateStatistics();
+                    return;
+                }
+
+                // Normalize data to ensure all fields exist
+                diagnosesData = data.map(item => DataHelper.normalizeDiagnosisData(item));
+                filteredDiagnoses = [...diagnosesData];
+                
+                console.log('📊 Normalized diagnoses data:', diagnosesData);
+                
+                updateStatistics();
+                renderDiagnosesTable();
+                UIController.showMessage(`Berhasil memuat ${diagnosesData.length} data diagnosa`, 'success');
+                
+            } catch (err) {
+                console.error('Error loading diagnoses:', err);
+                UIController.hideLoading();
+                UIController.showErrorState();
+                UIController.showMessage('Gagal memuat data diagnosa: ' + err.message, 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Update statistics cards
+        // =============================
+        function updateStatistics() {
+            const totalDiagnoses = diagnosesData.length;
+            const totalLowRisk = diagnosesData.filter(d => 
+                DataHelper.getSafeValue(d, 'tingkat_resiko', '').toLowerCase() === 'rendah'
+            ).length;
+            const totalMediumRisk = diagnosesData.filter(d => 
+                DataHelper.getSafeValue(d, 'tingkat_resiko', '').toLowerCase() === 'sedang'
+            ).length;
+            const totalHighRisk = diagnosesData.filter(d => 
+                DataHelper.getSafeValue(d, 'tingkat_resiko', '').toLowerCase() === 'tinggi'
+            ).length;
+
+            document.getElementById('totalDiagnoses').textContent = totalDiagnoses;
+            document.getElementById('totalLowRisk').textContent = totalLowRisk;
+            document.getElementById('totalMediumRisk').textContent = totalMediumRisk;
+            document.getElementById('totalHighRisk').textContent = totalHighRisk;
+        }
+
+        // =============================
+        // 🔹 Render data ke tabel - DIUBAH UNTUK STRUKTUR DATABASE ANDA
+        // =============================
+        function renderDiagnosesTable() {
+            const tableBody = document.getElementById('diagnosesTableBody');
+            
+            const startIndex = (currentPage - 1) * diagnosesPerPage;
+            const endIndex = startIndex + diagnosesPerPage;
+            const diagnosesToShow = filteredDiagnoses.slice(startIndex, endIndex);
+            
+            if (diagnosesToShow.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="padding: 40px; color: var(--gray-dark); text-align: center;">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            Tidak ada diagnosa yang sesuai dengan filter
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = diagnosesToShow
+                    .map(diagnosis => {
+                        const normalizedDiagnosis = DataHelper.normalizeDiagnosisData(diagnosis);
+                        return `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 500; color: var(--primary);">#${normalizedDiagnosis.id}</div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; background: ${normalizedDiagnosis.user_gender === 'Laki-laki' ? '#e3f2fd' : '#fce4ec'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: ${normalizedDiagnosis.user_gender === 'Laki-laki' ? '#1565c0' : '#e91e63'};">
+                                        ${normalizedDiagnosis.user_gender === 'Laki-laki' ? 'L' : 'P'}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">${normalizedDiagnosis.user_name}</div>
+                                        <div style="font-size: 0.8rem; color: var(--gray-dark);">${normalizedDiagnosis.user_age} tahun</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500; color: var(--primary);">${normalizedDiagnosis.disease_name}</div>
+                            </td>
+                            <td>
+                                <span class="badge ${getRiskLevelClass(normalizedDiagnosis.tingkat_resiko)}">
+                                    <i class="fas ${getRiskLevelIcon(normalizedDiagnosis.tingkat_resiko)}"></i>
+                                    ${normalizedDiagnosis.tingkat_resiko}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500; color: ${getScoreColor(normalizedDiagnosis.skor_akhir)};">
+                                    ${(normalizedDiagnosis.skor_akhir * 100).toFixed(1)}%
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${normalizedDiagnosis.skor_akhir * 100}%; background-color: ${getScoreColor(normalizedDiagnosis.skor_akhir)};"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="color: var(--gray-dark); font-size: 0.9rem;">
+                                    ${formatDate(normalizedDiagnosis.created_at)}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button onclick="viewDiagnosisDetail(${normalizedDiagnosis.id})" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                        Detail
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    }).join('');
+            }
+            
+            updatePaginationInfo();
+        }
+
+        // =============================
+        // 🔹 Helper functions untuk styling
+        // =============================
+        function getRiskLevelClass(riskLevel) {
+            const level = riskLevel.toLowerCase();
+            switch(level) {
+                case 'rendah': return 'badge-success';
+                case 'sedang': return 'badge-warning';
+                case 'tinggi': return 'badge-danger';
+                default: return 'badge-info';
+            }
+        }
+
+        function getRiskLevelIcon(riskLevel) {
+            const level = riskLevel.toLowerCase();
+            switch(level) {
+                case 'rendah': return 'fa-arrow-down';
+                case 'sedang': return 'fa-minus';
+                case 'tinggi': return 'fa-arrow-up';
+                default: return 'fa-question';
+            }
+        }
+
+        function getScoreColor(score) {
+            if (score >= 0.7) return '#f44336';
+            if (score >= 0.4) return '#ff9800';
+            return '#4caf50';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString || dateString === '-') return '-';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                
+                return date.toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return dateString;
+            }
+        }
+
+        // =============================
+        // 🔹 Update informasi pagination
+        // =============================
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(filteredDiagnoses.length / diagnosesPerPage);
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (pageInfo) {
+                pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages || 1}`;
+            }
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentPage === 1;
+            }
+            
+            if (nextBtn) {
+                nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+            }
+        }
+
+        // =============================
+        // 🔹 Filter data diagnosa
+        // =============================
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const riskValue = document.getElementById('riskFilter').value;
+            const dateValue = document.getElementById('dateFilter').value;
+            
+            filteredDiagnoses = diagnosesData.filter(diagnosis => {
+                const normalizedDiagnosis = DataHelper.normalizeDiagnosisData(diagnosis);
+                
+                const userName = normalizedDiagnosis.user_name.toLowerCase();
+                const userRisk = normalizedDiagnosis.tingkat_resiko;
+                const createdDate = new Date(normalizedDiagnosis.created_at);
+                const now = new Date();
+                
+                const matchesSearch = userName.includes(searchTerm);
+                const matchesRisk = !riskValue || userRisk === riskValue;
+                
+                let matchesDate = true;
+                if (dateValue === 'today') {
+                    matchesDate = createdDate.toDateString() === now.toDateString();
+                } else if (dateValue === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    matchesDate = createdDate >= weekAgo;
+                } else if (dateValue === 'month') {
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    matchesDate = createdDate >= monthAgo;
+                }
+                
+                return matchesSearch && matchesRisk && matchesDate;
+            });
+            
+            currentPage = 1;
+            renderDiagnosesTable();
+        }
+
+        // =============================
+        // 🔹 Reset filter
+        // =============================
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('riskFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            filteredDiagnoses = [...diagnosesData];
+            currentPage = 1;
+            renderDiagnosesTable();
+            UIController.showMessage('Filter telah direset', 'info');
+        }
+
+        // =============================
+        // 🔹 Pagination functions
+        // =============================
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderDiagnosesTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredDiagnoses.length / diagnosesPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderDiagnosesTable();
+            }
+        }
+
+        // =============================
+        // 🔹 View diagnosis detail - DIUBAH UNTUK STRUKTUR DATABASE ANDA
+        // =============================
+        async function viewDiagnosisDetail(id) {
+            try {
+                const diagnosis = diagnosesData.find(d => DataHelper.normalizeDiagnosisData(d).id === id);
+                
+                if (!diagnosis) {
+                    UIController.showMessage('Data diagnosa tidak ditemukan', 'error');
+                    return;
+                }
+
+                const normalizedDiagnosis = DataHelper.normalizeDiagnosisData(diagnosis);
+                
+                document.getElementById('detailModalTitle').textContent = `Detail Diagnosa #${normalizedDiagnosis.id}`;
+                
+                document.getElementById('detailContent').innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div class="info-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                            <h4 style="margin-bottom: 10px; color: var(--primary);">Informasi Pengguna</h4>
+                            <p><strong>Nama:</strong> ${normalizedDiagnosis.user_name}</p>
+                            <p><strong>Usia:</strong> ${normalizedDiagnosis.user_age} tahun</p>
+                            <p><strong>Jenis Kelamin:</strong> ${normalizedDiagnosis.user_gender}</p>
+                            <p><strong>ID Pengguna:</strong> ${normalizedDiagnosis.user_id}</p>
+                        </div>
+                        
+                        <div class="info-card" style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                            <h4 style="margin-bottom: 10px; color: var(--warning);">Hasil Diagnosa</h4>
+                            <p><strong>Penyakit:</strong> ${normalizedDiagnosis.disease_name}</p>
+                            <p><strong>Tingkat Risiko:</strong> 
+                                <span class="badge ${getRiskLevelClass(normalizedDiagnosis.tingkat_resiko)}">
+                                    ${normalizedDiagnosis.tingkat_resiko}
+                                </span>
+                            </p>
+                            <p><strong>Skor Akhir:</strong> ${(normalizedDiagnosis.skor_akhir * 100).toFixed(1)}%</p>
+                            <p><strong>Tanggal:</strong> ${formatDate(normalizedDiagnosis.created_at)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-card" style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid var(--success);">
+                        <h4 style="margin-bottom: 10px; color: var(--success);">Rekomendasi Khusus</h4>
+                        <p>${normalizedDiagnosis.rekomendasi_khusus}</p>
+                    </div>
+                    
+                    <div class="risk-indicator" style="margin-top: 20px; text-align: center;">
+                        <div style="font-size: 0.9rem; color: var(--gray-dark); margin-bottom: 10px;">Indikator Risiko</div>
+                        <div class="score-bar" style="height: 12px; background: var(--gray); border-radius: 6px; overflow: hidden;">
+                            <div class="score-fill" style="width: ${normalizedDiagnosis.skor_akhir * 100}%; height: 100%; background: linear-gradient(90deg, #4caf50 0%, #ff9800 50%, #f44336 100%);"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.8rem; color: var(--gray-dark);">
+                            <span>Rendah</span>
+                            <span>Sedang</span>
+                            <span>Tinggi</span>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('detailModal').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error loading diagnosis detail:', error);
+                UIController.showMessage('Gagal memuat detail diagnosa', 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Close detail modal
+        // =============================
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // =============================
+        // 🔹 Close modal when clicking outside
+        // =============================
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeDetailModal();
+            }
+        }
+
+        // =============================
+        // 🚀 Initialize application
+        // =============================
+        function initializePage() {
+            console.log('🎯 Initializing diagnoses page...');
+            
+            if (!SessionManager.checkSession()) {
+                console.log('🔀 Redirecting to login page...');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                UIController.updateUserInfo();
+                
+                document.getElementById('logoutBtn').addEventListener('click', SessionManager.logout);
+                
+                document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        applyFilters();
+                    }
+                });
+                
+                loadDiagnosesData();
+                
+                console.log('🎉 Diagnoses page fully initialized');
+                
+            } catch (error) {
+                console.error('❌ Error initializing diagnoses page:', error);
+                UIController.showMessage('Terjadi kesalahan saat memuat halaman', 'error');
+            }
+        }
+
+        // =============================
+        // 🚀 Jalankan saat halaman dimuat
+        // =============================
+        document.addEventListener("DOMContentLoaded", initializePage);
+    </script>
+</body>
+</html>

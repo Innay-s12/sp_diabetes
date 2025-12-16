@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - Sistem Diabetes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #4a90e2;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .password-toggle:hover {
+            color: #4a90e2;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #4a90e2, #5a9ae2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            background: linear-gradient(to right, #3a7bc8, #4a8bd8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .btn-login:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            padding: 8px 12px;
+            background-color: #fdf2f2;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #4a90e2;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            padding: 8px 12px;
+            background-color: #f2fdf6;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 24px;
+            }
+        }
+        
+        /* Untuk input yang error */
+        .form-group input.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+        
+        .form-group input.success {
+            border-color: #27ae60;
+            background-color: #f2fdf6;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Login Admin</h1>
+            <p>Sistem Manajemen Diabetes</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="nama">Nama Admin</label>
+                <input type="text" id="nama" name="nama" placeholder="Masukkan nama admin" required autocomplete="username">
+                <div class="error-message" id="namaError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="sandi">Kata Sandi</label>
+                <input type="password" id="sandi" name="sandi" placeholder="Masukkan kata sandi (6 digit angka)" required maxlength="6" autocomplete="current-password">
+                <button type="button" class="password-toggle" id="togglePassword">Lihat</button>
+                <div class="error-message" id="sandiError"></div>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginButton">Masuk</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Memeriksa kredensial...</p>
+            </div>
+            
+            <div class="success-message" id="successMessage">Login berhasil! Mengarahkan ke dashboard...</div>
+        </form>
+        
+        <div class="footer">
+            &copy; 2025 Sistem Manajemen Diabetes
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔐 Login page loaded');
+        
+        // Check existing session
+        checkExistingSession();
+        
+        // Setup event listeners
+        setupEventListeners();
+    });
+
+    function checkExistingSession() {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        const loginTime = sessionStorage.getItem('loginTime');
+        
+        if (isLoggedIn === 'true' && loginTime) {
+            const currentTime = Date.now();
+            const sessionAge = currentTime - parseInt(loginTime);
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            
+            if (sessionAge < twentyFourHours) {
+                console.log('✅ Valid session found, redirecting...');
+                window.location.href = 'admin.html';
+                return;
+            } else {
+                console.log('⚠️ Session expired, clearing...');
+                sessionStorage.clear();
+                showSessionExpiredMessage();
+            }
+        }
+    }
+
+    function showSessionExpiredMessage() {
+        const sandiError = document.getElementById('sandiError');
+        sandiError.textContent = 'Sesi Anda telah berakhir. Silakan login kembali.';
+        sandiError.style.display = 'block';
+        sandiError.style.color = '#f39c12';
+        sandiError.style.backgroundColor = '#fef5e7';
+        sandiError.style.borderLeftColor = '#f39c12';
+    }
+
+    function setupEventListeners() {
+        const loginForm = document.getElementById('loginForm');
+        const sandiInput = document.getElementById('sandi');
+        const namaInput = document.getElementById('nama');
+        const togglePassword = document.getElementById('togglePassword');
+        
+        // Form submission
+        loginForm.addEventListener('submit', handleLogin);
+        
+        // Real-time validation for password
+        sandiInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            clearError('sandiError');
+            updateInputStyle(this, 'sandi');
+        });
+        
+        // Real-time validation for username
+        namaInput.addEventListener('input', function() {
+            clearError('namaError');
+            updateInputStyle(this, 'nama');
+        });
+        
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('sandi');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'Lihat' : 'Sembunyikan';
+        });
+        
+        // Focus on username field when page loads
+        namaInput.focus();
+    }
+
+    async function handleLogin(e) {
+    e.preventDefault();
+    
+    const nama = document.getElementById('nama').value.trim();
+    const sandi = document.getElementById('sandi').value.trim();
+    
+    clearAllMessages();
+    resetInputStyles();
+    
+    if (!validateInput(nama, sandi)) {
+        return;
+    }
+    
+    setLoadingState(true);
+    
+    try {
+        // Panggil API backend Node.js
+        const result = await authenticateUser(nama, sandi);
+        
+        if (result.success) {
+            // Simpan data user dan token ke sessionStorage
+            saveSession(nama, result.user, result.token);
+            showSuccessMessage();
+            
+            // Redirect setelah delay
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1500);
+        } else {
+            // Tampilkan error dari server
+            showError('sandiError', result.message || 'Login gagal');
+            shakeForm();
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showError('sandiError', 'Terjadi kesalahan sistem. Silakan coba lagi.');
+    } finally {
+        setLoadingState(false);
+    }
+}
+
+function validateInput(nama, sandi) {
+    let isValid = true;
+    
+    // Validasi username
+    if (!nama) {
+        showError('namaError', 'Nama admin harus diisi');
+        markInputError('nama');
+        isValid = false;
+    } else if (nama.length < 3) {
+        showError('namaError', 'Nama admin minimal 3 karakter');
+        markInputError('nama');
+        isValid = false;
+    }
+    
+    // Validasi password
+    if (!sandi) {
+        showError('sandiError', 'Kata sandi harus diisi');
+        markInputError('sandi');
+        isValid = false;
+    } else if (sandi.length !== 6 || !/^\d+$/.test(sandi)) {
+        showError('sandiError', 'Kata sandi harus 6 digit angka');
+        markInputError('sandi');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function saveSession(adminName, userData = null, token = null) {
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('adminName', adminName);
+    sessionStorage.setItem('loginTime', Date.now().toString());
+    
+    if (userData) {
+        sessionStorage.setItem('adminId', userData.id || '');
+        sessionStorage.setItem('adminFullName', userData.name || adminName);
+        sessionStorage.setItem('adminRole', userData.role || 'admin');
+    }
+    
+    if (token) {
+        sessionStorage.setItem('authToken', token);
+        console.log('✅ Token saved');
+    }
+    
+    console.log('✅ Session saved for admin:', adminName);
+}
+
+    async function authenticateUser(nama, sandi) {
+    try {
+        // Pastikan ini sesuai dengan URL backend Anda
+        const backendUrl = 'http://localhost:8000'; // Sesuaikan port
+        
+        const response = await fetch(`${backendUrl}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: nama,  // Perhatikan field name: 'username' bukan 'name'
+                password: sandi  // 'password' bukan 'sandi'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            // Jika response tidak ok (status bukan 2xx)
+            return { 
+                success: false, 
+                message: result.message || 'Login gagal' 
+            };
+        }
+        
+        return result;
+        
+    } catch (error) {
+        console.error('Authentication error:', error);
+        return { 
+            success: false, 
+            message: 'Tidak dapat terhubung ke server. Pastikan backend berjalan.' 
+        };
+    }
+}
+
+    function saveSession(adminName) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('adminName', adminName);
+        sessionStorage.setItem('loginTime', Date.now().toString());
+        console.log('✅ Session saved for admin:', adminName);
+    }
+
+    function setLoadingState(isLoading) {
+        const loginButton = document.getElementById('loginButton');
+        const loadingElement = document.getElementById('loading');
+        
+        if (isLoading) {
+            loginButton.disabled = true;
+            loginButton.textContent = 'Memproses...';
+            loadingElement.style.display = 'block';
+        } else {
+            loginButton.disabled = false;
+            loginButton.textContent = 'Masuk';
+            loadingElement.style.display = 'none';
+        }
+    }
+
+    function showError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+
+    function clearError(elementId) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.style.display = 'none';
+    }
+
+    function clearAllMessages() {
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(msg => {
+            msg.style.display = 'none';
+            msg.style.color = '#e74c3c';
+            msg.style.backgroundColor = '#fdf2f2';
+            msg.style.borderLeftColor = '#e74c3c';
+        });
+        document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function showSuccessMessage() {
+        const successMessage = document.getElementById('successMessage');
+        successMessage.style.display = 'block';
+        successMessage.style.animation = 'fadeIn 0.5s';
+    }
+
+    function markInputError(inputId) {
+        const input = document.getElementById(inputId);
+        input.classList.remove('success');
+        input.classList.add('error');
+    }
+
+    function updateInputStyle(input, inputId) {
+        const value = input.value.trim();
+        
+        input.classList.remove('error', 'success');
+        
+        if (value.length > 0) {
+            if (inputId === 'sandi') {
+                if (/^\d{6}$/.test(value)) {
+                    input.classList.add('success');
+                }
+            } else if (inputId === 'nama') {
+                if (value.length >= 3) {
+                    input.classList.add('success');
+                }
+            }
+        }
+    }
+
+    function resetInputStyles() {
+        const inputs = document.querySelectorAll('.form-group input');
+        inputs.forEach(input => {
+            input.classList.remove('error', 'success');
+        });
+    }
+
+    function shakeForm() {
+        const loginContainer = document.querySelector('.login-container');
+        loginContainer.style.animation = 'none';
+        setTimeout(() => {
+            loginContainer.style.animation = 'shake 0.5s';
+        }, 10);
+        
+        // Define shake animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        setTimeout(() => {
+            loginContainer.style.animation = '';
+            style.remove();
+        }, 500);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+Enter to submit form
+        if (e.ctrlKey && e.key === 'Enter') {
+            const loginButton = document.getElementById('loginButton');
+            if (!loginButton.disabled) {
+                loginButton.click();
+            }
+        }
+        
+        // Escape to clear form
+        if (e.key === 'Escape') {
+            document.getElementById('loginForm').reset();
+            clearAllMessages();
+            resetInputStyles();
+            document.getElementById('nama').focus();
+        }
+    });
+    </script>
+</body>
+</html>

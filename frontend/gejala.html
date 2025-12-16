@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Gejala - Sistem Diagnosis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --primary-light: #64b5f6;
+            --accent: #ff9800;
+            --light: #f5f5f5;
+            --dark: #333;
+            --gray: #e0e0e0;
+            --gray-dark: #9e9e9e;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* ===== LAYOUT ===== */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: var(--shadow);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            background-color: var(--white);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 99;
+        }
+
+        .topbar h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: var(--primary-light);
+        }
+
+        .content {
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .stat-info p {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+        }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--dark);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* ===== SEARCH & FILTERS ===== */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-dark);
+        }
+
+        /* ===== MODAL STYLES ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray);
+        }
+
+        /* ===== LOADING & STATES ===== */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state i, .error-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: white !important;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+        }
+
+        .badge-info {
+            background-color: var(--primary);
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.warning {
+            background-color: var(--warning);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .menu-item {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                margin-top: 10px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Diabetes</h2>
+                <p>Sistem Manajemen Data</p>
+            </div>
+            <div class="sidebar-menu">
+                <a href="admin.html" class="menu-item">
+                    <i class="fas fa-chart-bar"></i> Dashboard
+                </a>
+                <a href="pengguna.html" class="menu-item">
+                    <i class="fas fa-users"></i> Data Pengguna
+                </a>
+                <a href="diagnoses.html" class="menu-item">
+                    <i class="fas fa-file-medical"></i> Data Diagnosa
+                </a>
+                <a href="diseases.html" class="menu-item">
+                    <i class="fas fa-user-md"></i> User Symptoms
+                </a>
+                <a href="gejala.html" class="menu-item active">
+                    <i class="fas fa-clipboard-list"></i> Data Gejala
+                </a>
+                <a href="recommendations.html" class="menu-item">
+                    <i class="fas fa-lightbulb"></i> Rekomendasi
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <h1>Data Gejala</h1>
+                <div class="user-info">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjcgMCA1IDIuMyA1IDVzLTIuMyA1LTUgNS01LTIuMy01LTUgMi4zLTUgNS01em0wIDE3LjJjLTMuMiAwLTYuMTctMS40Mi04LjE0LTMuODguMi0yLjQyIDIuMS00LjMyIDQuNTQtNC4zMiAyLjQ0IDAgNC4zNCAxLjkgNC41NCA0LjMyLTEuOTcgMi40Ni00Ljk0IDMuODgtOC4xNCAzLjg4eiIvPjwvc3ZnPg==" alt="User">
+                    <span>Administrator</span>
+                </div>
+                <button class="btn btn-primary btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e3f2fd; color: #1565c0;">
+                            <i class="fas fa-list-ol"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalGejala">-</h3>
+                            <p>Total Gejala</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e8f5e9; color: #2e7d32;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Aktif</h3>
+                            <p>Status Sistem</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f3e5f5; color: #7b1fa2;">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>API Local</h3>
+                            <p>Sumber Data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Daftar Gejala</h3>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchGejala" placeholder="Cari gejala...">
+                            </div>
+                            <button onclick="loadGejala()" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button onclick="showAddModal()" class="btn btn-success">
+                                <i class="fas fa-plus"></i>
+                                Tambah Gejala
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Kode Gejala</th>
+                                        <th>Nama Gejala</th>
+                                        <th>Deskripsi</th>
+                                        <th>Tingkat Keparahan</th>
+                                        <th>Bobot</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gejalaTableBody">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="loadingState" class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Memuat data gejala...</p>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="emptyState" class="empty-state hidden">
+                            <i class="fas fa-inbox"></i>
+                            <h3>Tidak ada data gejala</h3>
+                            <p>Tidak ada gejala yang ditemukan di database.</p>
+                        </div>
+                        
+                        <!-- Error State -->
+                        <div id="errorState" class="error-state hidden">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Gagal memuat data</h3>
+                            <p>Terjadi kesalahan saat mengambil data gejala.</p>
+                            <button onclick="loadGejala()" class="btn btn-primary" style="margin-top: 15px;">
+                                <i class="fas fa-redo-alt"></i>
+                                Coba Lagi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Informasi API</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; align-items: flex-start; gap: 15px;">
+                            <i class="fas fa-info-circle" style="color: var(--primary); font-size: 1.2rem; margin-top: 2px;"></i>
+                            <div>
+                                <p style="margin-bottom: 10px;">
+                                    Data gejala diambil dari endpoint: 
+                                    <code style="background: #e3f2fd; padding: 2px 6px; border-radius: 3px; font-family: monospace;" id="apiEndpoint"></code>
+                                </p>
+                                <p style="color: var(--gray-dark); font-size: 0.9rem;">
+                                    Pastikan server API berjalan di 
+                                    <code style="background: #f5f5f5; padding: 2px 4px; border-radius: 3px; font-family: monospace;">http://localhost:8000</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk Tambah/Edit Gejala -->
+    <div id="gejalaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Gejala Baru</h3>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="gejalaForm">
+                    <input type="hidden" id="gejalaId" name="id">
+                    
+                    <div class="form-group">
+                        <label for="kode_gejala">Kode Gejala *</label>
+                        <input type="text" id="kode_gejala" name="kode_gejala" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nama_gejala">Nama Gejala *</label>
+                        <input type="text" id="nama_gejala" name="nama_gejala" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deskripsi">Deskripsi</label>
+                        <textarea id="deskripsi" name="deskripsi" placeholder="Deskripsi gejala..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tingkat_keparahan">Tingkat Keparahan *</label>
+                        <select id="tingkat_keparahan" name="tingkat_keparahan" required>
+                            <option value="">Pilih Tingkat Keparahan</option>
+                            <option value="Rendah">Rendah</option>
+                            <option value="Sedang">Sedang</option>
+                            <option value="Tinggi">Tinggi</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bobot">Bobot *</label>
+                        <input type="number" id="bobot" name="bobot" step="0.1" min="0.1" max="10" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="hideModal()">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="fas fa-save"></i>
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================
+        // ✅ Konfigurasi API
+        // =============================
+        const API_BASE_URL = "http://localhost:8000/api";
+
+        // =============================
+        // 🔹 Service untuk mengelola gejala
+        // =============================
+        class SymptomService {
+            static async getAll() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/symptoms`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching symptoms:', error);
+                    throw error;
+                }
+            }
+
+            static async getById(id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/symptoms/${id}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching symptom:', error);
+                    throw error;
+                }
+            }
+
+            static async create(symptomData) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/symptoms`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(symptomData)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error creating symptom:', error);
+                    throw error;
+                }
+            }
+
+            static async update(id, symptomData) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/symptoms/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(symptomData)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error updating symptom:', error);
+                    throw error;
+                }
+            }
+
+            static async delete(id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/symptoms/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error deleting symptom:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // =============================
+        // 🔹 Toast Notification System
+        // =============================
+        class Toast {
+            static show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => toast.classList.add('show'), 100);
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // =============================
+        // 🔹 Session Management - DIPERBAIKI
+        // =============================
+        function checkSession() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const adminName = sessionStorage.getItem('adminName');
+            
+            if (!isLoggedIn || !adminName) {
+                console.log('❌ No valid session, redirecting to login');
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            return true;
+        }
+
+        function initializeDashboard() {
+            console.log('🎯 Initializing dashboard...');
+            
+            // Cek session terlebih dahulu
+            if (!checkSession()) {
+                return;
+            }
+            
+            try {
+                // Update user info
+                const adminName = sessionStorage.getItem('adminName') || 'Administrator';
+                console.log('👤 Admin name:', adminName);
+                
+                const userNameElement = document.querySelector('.user-info span');
+                if (userNameElement) {
+                    userNameElement.textContent = adminName;
+                }
+                
+                // Update avatar
+                const userInfoDiv = document.querySelector('.user-info');
+                const existingAvatar = userInfoDiv.querySelector('img, div');
+                if (existingAvatar) {
+                    existingAvatar.remove();
+                }
+                
+                const initial = adminName.charAt(0).toUpperCase();
+                const avatarDiv = document.createElement('div');
+                avatarDiv.style.cssText = `
+                    width: 40px; height: 40px; border-radius: 50%; background: #e3f2fd; 
+                    display: flex; align-items: center; justify-content: center; 
+                    color: #1565c0; font-weight: bold; margin-right: 10px; font-size: 16px;
+                `;
+                avatarDiv.textContent = initial;
+                userInfoDiv.insertBefore(avatarDiv, userNameElement);
+                
+                // Setup logout button
+                const logoutButton = document.querySelector('.btn-logout');
+                if (logoutButton) {
+                    logoutButton.addEventListener('click', function() {
+                        if (confirm('Apakah Anda yakin ingin logout?')) {
+                            console.log('🚪 Logging out...');
+                            sessionStorage.clear();
+                            localStorage.clear();
+                            window.location.href = 'login.html';
+                        }
+                    });
+                }
+                
+                // Update API endpoint info
+                document.getElementById('apiEndpoint').textContent = `${API_BASE_URL}/symptoms`;
+                
+                console.log('🎉 Dashboard fully initialized');
+                
+            } catch (error) {
+                console.error('❌ Error initializing dashboard:', error);
+                Toast.show('Terjadi kesalahan saat memuat dashboard', 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Modal Functions
+        // =============================
+        function showModal() {
+            document.getElementById('gejalaModal').classList.add('show');
+        }
+
+        function hideModal() {
+            document.getElementById('gejalaModal').classList.remove('show');
+            document.getElementById('gejalaForm').reset();
+            document.getElementById('gejalaId').value = '';
+        }
+
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Tambah Gejala Baru';
+            document.getElementById('submitButton').innerHTML = '<i class="fas fa-save"></i> Simpan';
+            showModal();
+        }
+
+        async function showEditModal(id) {
+            try {
+                const gejala = await SymptomService.getById(id);
+                
+                document.getElementById('modalTitle').textContent = 'Edit Gejala';
+                document.getElementById('submitButton').innerHTML = '<i class="fas fa-save"></i> Update';
+                
+                // Isi form dengan data yang ada
+                document.getElementById('gejalaId').value = gejala.id;
+                document.getElementById('kode_gejala').value = gejala.kode_gejala || '';
+                document.getElementById('nama_gejala').value = gejala.nama_gejala || '';
+                document.getElementById('deskripsi').value = gejala.deskripsi || '';
+                document.getElementById('tingkat_keparahan').value = gejala.tingkat_keparahan || '';
+                document.getElementById('bobot').value = gejala.bobot || '';
+                
+                showModal();
+            } catch (error) {
+                console.error('Error loading symptom for edit:', error);
+                Toast.show('Gagal memuat data gejala untuk diedit', 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Form Handler
+        // =============================
+        document.getElementById('gejalaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const gejalaData = {
+                kode_gejala: formData.get('kode_gejala'),
+                nama_gejala: formData.get('nama_gejala'),
+                deskripsi: formData.get('deskripsi'),
+                tingkat_keparahan: formData.get('tingkat_keparahan'),
+                bobot: parseFloat(formData.get('bobot'))
+            };
+
+            const gejalaId = formData.get('id');
+            const submitButton = document.getElementById('submitButton');
+            const originalText = submitButton.innerHTML;
+            
+            try {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                submitButton.disabled = true;
+                
+                if (gejalaId) {
+                    await SymptomService.update(gejalaId, gejalaData);
+                    Toast.show('Gejala berhasil diperbarui!', 'success');
+                } else {
+                    await SymptomService.create(gejalaData);
+                    Toast.show('Gejala berhasil dibuat!', 'success');
+                }
+                
+                hideModal();
+                loadGejala();
+            } catch (error) {
+                console.error('Error saving symptom:', error);
+                Toast.show('Error menyimpan gejala!', 'error');
+            } finally {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+
+        // =============================
+        // 🔹 Delete Function
+        // =============================
+        async function deleteGejala(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus gejala ini?')) {
+                return;
+            }
+            
+            try {
+                await SymptomService.delete(id);
+                Toast.show('Gejala berhasil dihapus!', 'success');
+                loadGejala();
+            } catch (error) {
+                console.error('Error deleting symptom:', error);
+                Toast.show('Error menghapus gejala!', 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Ambil daftar gejala dari API
+        // =============================
+        async function loadGejala() {
+            // Tampilkan loading state
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('gejalaTableBody').innerHTML = '';
+            
+            try {
+                const data = await SymptomService.getAll();
+
+                // Sembunyikan loading state
+                document.getElementById('loadingState').classList.add('hidden');
+                
+                if (!data.length) {
+                    // Tampilkan empty state
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    document.getElementById('totalGejala').textContent = '0';
+                    return;
+                }
+
+                // Update total gejala
+                document.getElementById('totalGejala').textContent = data.length;
+                
+                // Render data ke tabel
+                const tableBody = document.getElementById('gejalaTableBody');
+                tableBody.innerHTML = data
+                    .map(gejala => `
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 40px; height: 40px; background: #e3f2fd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #1565c0;">
+                                        ${gejala.kode_gejala}
+                                    </div>
+                                    <span style="font-weight: 500;">${gejala.kode_gejala}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500;">${gejala.nama_gejala}</div>
+                            </td>
+                            <td>
+                                <div style="color: #666; max-width: 300px; line-height: 1.4;">${gejala.deskripsi || '-'}</div>
+                            </td>
+                            <td>
+                                <span class="badge ${getSeverityColor(gejala.tingkat_keparahan)}">
+                                    ${gejala.tingkat_keparahan}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-info">
+                                    ${gejala.bobot}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button onclick="showEditModal(${gejala.id})" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteGejala(${gejala.id})" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                // Tambahkan event listener untuk pencarian
+                document.getElementById('searchGejala').addEventListener('input', filterGejalaTable);
+                
+            } catch (err) {
+                console.error(err);
+                // Tampilkan error state
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('errorState').classList.remove('hidden');
+            }
+        }
+
+        // =============================
+        // 🔹 Helper function untuk warna tingkat keparahan
+        // =============================
+        function getSeverityColor(tingkat) {
+            if (!tingkat) return 'badge-info';
+            
+            switch(tingkat.toLowerCase()) {
+                case 'rendah':
+                    return 'badge-success';
+                case 'sedang':
+                    return 'badge-warning';
+                case 'tinggi':
+                    return 'badge-danger';
+                default:
+                    return 'badge-info';
+            }
+        }
+
+        // =============================
+        // 🔹 Filter tabel gejala berdasarkan pencarian
+        // =============================
+        function filterGejalaTable() {
+            const searchTerm = document.getElementById('searchGejala').value.toLowerCase();
+            const rows = document.querySelectorAll('#gejalaTableBody tr');
+            
+            rows.forEach(row => {
+                const gejalaText = row.textContent.toLowerCase();
+                
+                if (gejalaText.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // =============================
+        // 🚀 Jalankan saat halaman dimuat
+        // =============================
+        document.addEventListener("DOMContentLoaded", function() {
+            initializeDashboard();
+            loadGejala();
+            
+            // Tambahkan event listener untuk tombol refresh
+            document.getElementById('searchGejala').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loadGejala();
+                }
+            });
+
+            // Close modal ketika klik di luar modal
+            document.getElementById('gejalaModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

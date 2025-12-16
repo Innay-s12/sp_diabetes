@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pengguna - Sistem Diabetes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --primary-light: #64b5f6;
+            --accent: #ff9800;
+            --light: #f5f5f5;
+            --dark: #333;
+            --gray: #e0e0e0;
+            --gray-dark: #9e9e9e;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --white: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* ===== LAYOUT ===== */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: var(--shadow);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            background-color: var(--white);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 99;
+        }
+
+        .topbar h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-logout {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            margin-left: 15px;
+        }
+
+
+        .content {
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .stat-info p {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+        }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--dark);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* ===== SEARCH & FILTERS ===== */
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-dark);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            min-width: 150px;
+        }
+
+        /* ===== MODAL STYLES ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray);
+        }
+
+        /* ===== LOADING & STATES ===== */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state i, .error-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: var(--white);
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .badge-info {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+        }
+
+        .pagination-info {
+            margin: 0 15px;
+            color: var(--gray-dark);
+        }
+
+        /* ===== MESSAGES ===== */
+        .message-area {
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background-color: #e8f5e9;
+            color: var(--success);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--success);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: var(--danger);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-message {
+            background-color: #e3f2fd;
+            color: var(--primary);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.warning {
+            background-color: var(--warning);
+        }
+
+        .toast.info {
+            background-color: var(--primary);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .menu-item {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                margin-top: 10px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Diabetes</h2>
+                <p>Sistem Manajemen Data</p>
+            </div>
+            <div class="sidebar-menu">
+                <a href="admin.html" class="menu-item">
+                    <i class="fas fa-chart-bar"></i> Dashboard
+                </a>
+                <a href="pengguna.html" class="menu-item active">
+                    <i class="fas fa-users"></i> Data Pengguna
+                </a>
+                <a href="diagnoses.html" class="menu-item">
+                    <i class="fas fa-file-medical"></i> Data Diagnosa
+                </a>
+                <a href="diseases.html" class="menu-item">
+                    <i class="fas fa-user-md"></i> User Symptoms
+                </a>
+                <a href="gejala.html" class="menu-item">
+                    <i class="fas fa-clipboard-list"></i> Data Gejala
+                </a>
+                <a href="recommendations.html" class="menu-item">
+                    <i class="fas fa-lightbulb"></i> Rekomendasi
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <h1>Data Pengguna</h1>
+                <div class="user-info">
+                    <div id="userAvatar" style="width: 40px; height: 40px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; color: #1565c0; font-weight: bold; margin-right: 10px; font-size: 16px;">
+                        A
+                    </div>
+                    <span id="userName">Administrator</span>
+                    <button class="btn-logout" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Messages Area -->
+                <div id="messageArea" class="message-area"></div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left-color: var(--primary);">
+                        <div class="stat-icon" style="background: #e3f2fd; color: var(--primary);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalUsers">-</h3>
+                            <p>Total Pengguna</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" style="border-left-color: var(--success);">
+                        <div class="stat-icon" style="background: #e8f5e9; color: var(--success);">
+                            <i class="fas fa-male"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalMale">-</h3>
+                            <p>Laki-laki</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" style="border-left-color: var(--warning);">
+                        <div class="stat-icon" style="background: #fce4ec; color: #e91e63;">
+                            <i class="fas fa-female"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalFemale">-</h3>
+                            <p>Perempuan</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Stat card ketiga diubah menjadi usia rata-rata -->
+                    <div class="stat-card" style="border-left-color: var(--info);">
+                        <div class="stat-icon" style="background: #e3f2fd; color: var(--primary);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="averageAge">-</h3>
+                            <p>Usia Rata-rata</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Daftar Pengguna</h3>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button onclick="loadUsersData()" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="filters-container">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchInput" placeholder="Cari nama pengguna...">
+                            </div>
+                            <div class="filter-group">
+                                <select id="genderFilter">
+                                    <option value="">Semua Jenis Kelamin</option>
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                                <button onclick="applyFilters()" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i>
+                                    Filter
+                                </button>
+                                <button onclick="resetFilters()" class="btn">
+                                    <i class="fas fa-redo"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Users Table -->
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nama Lengkap</th>
+                                        <th>Usia</th>
+                                        <th>Jenis Kelamin</th>
+                                        <th>Tanggal Dibuat</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Data akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="loadingState" class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Memuat data pengguna...</p>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="emptyState" class="empty-state hidden">
+                            <i class="fas fa-users"></i>
+                            <h3>Tidak ada data pengguna</h3>
+                            <p>Tidak ada pengguna yang ditemukan di database.</p>
+                        </div>
+                        
+                        <!-- Error State -->
+                        <div id="errorState" class="error-state hidden">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Gagal memuat data</h3>
+                            <p>Terjadi kesalahan saat mengambil data pengguna.</p>
+                            <button onclick="loadUsersData()" class="btn btn-primary" style="margin-top: 15px;">
+                                <i class="fas fa-redo-alt"></i>
+                                Coba Lagi
+                            </button>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination">
+                            <button onclick="previousPage()" class="btn" id="prevBtn">
+                                <i class="fas fa-chevron-left"></i>
+                                Sebelumnya
+                            </button>
+                            <span class="pagination-info" id="pageInfo">Halaman 1 dari 1</span>
+                            <button onclick="nextPage()" class="btn" id="nextBtn">
+                                Selanjutnya
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk Edit Pengguna -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Edit Data Pengguna</h3>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId" name="id">
+                    
+                    <div class="form-group">
+                        <label for="nama_lengkap">Nama Lengkap *</label>
+                        <input type="text" id="nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="usia">Usia *</label>
+                        <input type="number" id="usia" name="usia" min="1" max="120" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="jenis_kelamin">Jenis Kelamin *</label>
+                        <select id="jenis_kelamin" name="jenis_kelamin" required>
+                            <option value="">Pilih Jenis Kelamin</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+        
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="hideModal()">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="submitButton">
+                            <i class="fas fa-save"></i>
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================
+        // 🔐 SESSION MANAGEMENT
+        // =============================
+        
+        class SessionManager {
+            static checkSession() {
+                try {
+                    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+                    const adminName = sessionStorage.getItem('adminName');
+                    const loginTime = sessionStorage.getItem('loginTime');
+                    
+                    console.log('🔍 Session check:', { isLoggedIn, adminName, loginTime });
+                    
+                    // Check if session exists and is valid
+                    if (isLoggedIn === 'true' && adminName && loginTime) {
+                        const sessionAge = Date.now() - parseInt(loginTime);
+                        const sessionValid = sessionAge < (24 * 60 * 60 * 1000); // 24 hours
+                        
+                        if (sessionValid) {
+                            console.log('✅ Valid session found');
+                            return true;
+                        } else {
+                            console.log('❌ Session expired');
+                            this.clearSession();
+                        }
+                    }
+                    
+                    console.log('❌ No valid session found');
+                    return false;
+                } catch (error) {
+                    console.error('Error checking session:', error);
+                    return false;
+                }
+            }
+            
+            static clearSession() {
+                sessionStorage.clear();
+                localStorage.clear();
+            }
+            
+            static getAdminName() {
+                return sessionStorage.getItem('adminName') || 'Administrator';
+            }
+            
+            static logout() {
+                if (confirm('Apakah Anda yakin ingin logout?')) {
+                    console.log('🚪 Logging out...');
+                    this.clearSession();
+                    window.location.href = 'login.html';
+                }
+            }
+        }
+
+        // =============================
+        // ✅ Konfigurasi API
+        // =============================
+        const API_BASE_URL = "http://localhost:8000/api";
+
+        // =============================
+        // 🔹 Service untuk mengelola pengguna
+        // =============================
+        class UserService {
+            static async getAll() {
+                try {
+                    console.log('📡 Fetching users from API...');
+                    const response = await fetch(`${API_BASE_URL}/users`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('✅ Users data received:', data);
+                    return data;
+                } catch (error) {
+                    console.error('❌ Error fetching users:', error);
+                    // Fallback to simulated data
+                    return this.getSimulatedData();
+                }
+            }
+
+            static async getById(id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/${id}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching user:', error);
+                    throw error;
+                }
+            }
+
+            static async update(id, userData) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error updating user:', error);
+                    throw error;
+                }
+            }
+
+            static async delete(id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    throw error;
+                }
+            }
+
+            static getSimulatedData() {
+                console.log('🔄 Using simulated users data');
+                return [
+                    {
+                        id: 1,
+                        nama_lengkap: "Budi Santoso",
+                        usia: 35,
+                        jenis_kelamin: "Laki-laki",
+                        created_at: "2025-01-15T10:30:00Z"
+                    },
+                    {
+                        id: 2,
+                        nama_lengkap: "Siti Rahayu",
+                        usia: 28,
+                        jenis_kelamin: "Perempuan",
+                        created_at: "2025-01-14T14:20:00Z"
+                    },
+                    {
+                        id: 3,
+                        nama_lengkap: "Andi Wijaya",
+                        usia: 45,
+                        jenis_kelamin: "Laki-laki",
+                        created_at: "2025-01-13T09:15:00Z"
+                    },
+                    {
+                        id: 4,
+                        nama_lengkap: "Dewi Lestari",
+                        usia: 32,
+                        jenis_kelamin: "Perempuan",
+                        created_at: "2025-01-12T16:45:00Z"
+                    },
+                    {
+                        id: 5,
+                        nama_lengkap: "Rina Melati",
+                        usia: 29,
+                        jenis_kelamin: "Perempuan",
+                        created_at: "2025-01-11T11:30:00Z"
+                    }
+                ];
+            }
+        }
+
+        // =============================
+        // 🔹 Toast Notification System
+        // =============================
+        class Toast {
+            static show(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => toast.classList.add('show'), 100);
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // =============================
+        // 🔹 Modal Functions
+        // =============================
+        function showModal() {
+            document.getElementById('userModal').classList.add('show');
+        }
+
+        function hideModal() {
+            document.getElementById('userModal').classList.remove('show');
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+        }
+
+        // =============================
+        // 🔹 State Management
+        // =============================
+        let usersData = [];
+        let filteredUsers = [];
+        let currentPage = 1;
+        const usersPerPage = 10;
+
+        // =============================
+        // 🔹 UI Controller
+        // =============================
+        class UIController {
+            static showLoading() {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('errorState').classList.add('hidden');
+                document.getElementById('usersTableBody').innerHTML = '';
+            }
+            
+            static hideLoading() {
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+            
+            static showEmptyState() {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+            
+            static showErrorState() {
+                document.getElementById('errorState').classList.remove('hidden');
+            }
+            
+            static updateUserInfo() {
+                const adminName = SessionManager.getAdminName();
+                const initial = adminName.charAt(0).toUpperCase();
+                
+                document.getElementById('userName').textContent = adminName;
+                document.getElementById('userAvatar').textContent = initial;
+            }
+            
+            static showMessage(message, type = 'success') {
+                const messageArea = document.getElementById('messageArea');
+                const messageClass = type === 'success' ? 'success-message' : 
+                                   type === 'error' ? 'error-message' : 'info-message';
+                const messageIcon = type === 'success' ? 'fa-check-circle' : 
+                                  type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+                
+                messageArea.innerHTML = `
+                    <div class="${messageClass}">
+                        <i class="fas ${messageIcon}"></i>
+                        ${message}
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    messageArea.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // =============================
+        // 🔹 Ambil data pengguna dari API
+        // =============================
+        async function loadUsersData() {
+            if (!SessionManager.checkSession()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            UIController.showLoading();
+            
+            try {
+                const data = await UserService.getAll();
+                
+                UIController.hideLoading();
+                
+                if (!data || !data.length) {
+                    UIController.showEmptyState();
+                    updateStatistics(0, 0, 0, 0);
+                    return;
+                }
+
+                usersData = data;
+                filteredUsers = [...usersData];
+                
+                updateStatistics();
+                renderUsersTable();
+                UIController.showMessage('Data pengguna berhasil dimuat', 'success');
+                
+            } catch (err) {
+                console.error('Error loading users:', err);
+                UIController.hideLoading();
+                UIController.showErrorState();
+                UIController.showMessage('Gagal memuat data pengguna', 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Update statistics cards
+        // =============================
+        function updateStatistics() {
+            const totalUsers = usersData.length;
+            const totalMale = usersData.filter(user => user.jenis_kelamin === 'Laki-laki').length;
+            const totalFemale = usersData.filter(user => user.jenis_kelamin === 'Perempuan').length;
+            
+            // Hitung usia rata-rata
+            const totalAge = usersData.reduce((sum, user) => sum + (user.usia || 0), 0);
+            const averageAge = totalUsers > 0 ? Math.round(totalAge / totalUsers) : 0;
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('totalMale').textContent = totalMale;
+            document.getElementById('totalFemale').textContent = totalFemale;
+            document.getElementById('averageAge').textContent = averageAge + ' tahun';
+        }
+
+        // =============================
+        // 🔹 Render data ke tabel
+        // =============================
+        function renderUsersTable() {
+            const tableBody = document.getElementById('usersTableBody');
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * usersPerPage;
+            const endIndex = startIndex + usersPerPage;
+            const usersToShow = filteredUsers.slice(startIndex, endIndex);
+            
+            if (usersToShow.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="padding: 40px; color: var(--gray-dark); text-align: center;">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            Tidak ada pengguna yang sesuai dengan filter
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = usersToShow
+                    .map(user => `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 500; color: var(--primary);">${user.id}</div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; background: ${user.jenis_kelamin === 'Laki-laki' ? '#e3f2fd' : '#fce4ec'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: ${user.jenis_kelamin === 'Laki-laki' ? '#1565c0' : '#e91e63'};">
+                                        ${user.jenis_kelamin === 'Laki-laki' ? 'L' : 'P'}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">${user.nama_lengkap}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500;">${user.usia} tahun</div>
+                            </td>
+                            <td>
+                                <span class="badge ${user.jenis_kelamin === 'Laki-laki' ? 'badge-info' : 'badge-warning'}">
+                                    ${user.jenis_kelamin}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="color: var(--gray-dark); font-size: 0.9rem;">
+                                    ${formatDate(user.created_at)}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button onclick="editUser(${user.id})" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteUser(${user.id})" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+            }
+            
+            updatePaginationInfo();
+        }
+
+        // =============================
+        // 🔹 Format tanggal untuk display
+        // =============================
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // =============================
+        // 🔹 Update informasi pagination
+        // =============================
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            document.getElementById('pageInfo').textContent = `Halaman ${currentPage} dari ${totalPages}`;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // =============================
+        // 🔹 Filter data pengguna
+        // =============================
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const genderValue = document.getElementById('genderFilter').value;
+            
+            filteredUsers = usersData.filter(user => {
+                const userName = (user.nama_lengkap || '').toLowerCase();
+                const userGender = user.jenis_kelamin;
+                
+                const matchesSearch = userName.includes(searchTerm);
+                const matchesGender = !genderValue || userGender === genderValue;
+                
+                return matchesSearch && matchesGender;
+            });
+            
+            currentPage = 1;
+            renderUsersTable();
+        }
+
+        // =============================
+        // 🔹 Reset filter
+        // =============================
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('genderFilter').value = '';
+            filteredUsers = [...usersData];
+            currentPage = 1;
+            renderUsersTable();
+            UIController.showMessage('Filter telah direset', 'info');
+        }
+
+        // =============================
+        // 🔹 Pagination functions
+        // =============================
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderUsersTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderUsersTable();
+            }
+        }
+
+        // =============================
+        // 🔹 Edit user
+        // =============================
+        async function editUser(id) {
+            try {
+                const user = await UserService.getById(id);
+                
+                // Isi form dengan data user
+                document.getElementById('userId').value = user.id;
+                document.getElementById('nama_lengkap').value = user.nama_lengkap || '';
+                document.getElementById('usia').value = user.usia || '';
+                document.getElementById('jenis_kelamin').value = user.jenis_kelamin || '';
+                
+                // Tampilkan modal
+                showModal();
+                
+            } catch (error) {
+                console.error('Error loading user for edit:', error);
+                Toast.show('Gagal memuat data pengguna untuk diedit', 'error');
+            }
+        }
+
+        // =============================
+        // 🔹 Form Handler untuk Edit
+        // =============================
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const userData = {
+                nama_lengkap: formData.get('nama_lengkap'),
+                usia: parseInt(formData.get('usia')),
+                jenis_kelamin: formData.get('jenis_kelamin')
+            };
+
+            const userId = formData.get('id');
+            const submitButton = document.getElementById('submitButton');
+            const originalText = submitButton.innerHTML;
+            
+            try {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                submitButton.disabled = true;
+                
+                await UserService.update(userId, userData);
+                Toast.show('Data pengguna berhasil diperbarui!', 'success');
+                
+                hideModal();
+                loadUsersData(); // Reload data
+            } catch (error) {
+                console.error('Error updating user:', error);
+                Toast.show('Gagal memperbarui data pengguna', 'error');
+            } finally {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+
+        // =============================
+        // 🔹 Delete user
+        // =============================
+        async function deleteUser(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
+                return;
+            }
+            
+            try {
+                await UserService.delete(id);
+                Toast.show('Pengguna berhasil dihapus!', 'success');
+                loadUsersData(); // Reload data
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                Toast.show('Gagal menghapus pengguna', 'error');
+            }
+        }
+
+        // =============================
+        // 🚀 Initialize application
+        // =============================
+        function initializePage() {
+            console.log('🎯 Initializing users page...');
+            
+            // Check session first
+            if (!SessionManager.checkSession()) {
+                console.log('🔀 Redirecting to login page...');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                // Setup UI
+                UIController.updateUserInfo();
+                
+                // Setup event listeners
+                document.getElementById('logoutBtn').addEventListener('click', SessionManager.logout);
+                
+                document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        applyFilters();
+                    }
+                });
+                
+                // Close modal ketika klik di luar modal
+                document.getElementById('userModal').addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideModal();
+                    }
+                });
+                
+                // Load data
+                loadUsersData();
+                
+                console.log('🎉 Users page fully initialized');
+                
+            } catch (error) {
+                console.error('❌ Error initializing users page:', error);
+                UIController.showMessage('Terjadi kesalahan saat memuat halaman', 'error');
+            }
+        }
+
+        // =============================
+        // 🚀 Jalankan saat halaman dimuat
+        // =============================
+        document.addEventListener("DOMContentLoaded", initializePage);
+    </script>
+</body>
+</html>
